@@ -1,0 +1,32 @@
+# ingress.yaml
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: ellenrotheraycouk-ingress
+  annotations:
+    nginx.ingress.kubernetes.io/rewrite-target: /
+spec:
+  #tls:
+  #- hosts:
+  #  - ellenrotheray.co.uk
+    #- quorumlegal.co.uk
+     #secretName: ellenrotheraycouk-ssl
+  #  secretName: quorumlegal-ssl
+  rules:
+  # this is the main site
+  - host: ellenrotheray.co.uk
+  #- host: quorumlegal.co.uk
+    http:
+      paths:
+      - backend:
+          serviceName: ellenrotheraycouk-svc
+          servicePort: 80
+        path: /
+  # want this to redirect to main site
+  #- host: www.ellenrotheray.co.uk
+  #  http:
+  #    paths:
+  #    - backend:
+  #        serviceName: redirect-svc
+  #        servicePort: 80
+  #      path: /

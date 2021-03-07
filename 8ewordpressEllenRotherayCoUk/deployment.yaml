@@ -1,0 +1,75 @@
+apiVersion: apps/v1 
+kind: Deployment
+metadata:
+  name: ellenrotheraycouk
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: ellenrotheraycouk-dep
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: ellenrotheraycouk-dep
+    spec:
+      containers:
+      - image: wordpress:4.9.7-apache
+        name: wordpress
+        env:
+        - name: WORDPRESS_DB_HOST
+          value: davemysql.mysql.database.azure.com 
+        - name: WORDPRESS_DB_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: mysql-pass
+              key: password
+        - name: WORDPRESS_DB_USER
+          value: dave@davemysql
+        # default name is wordpress
+        - name: WORDPRESS_DB_NAME
+          value: ellenrotheraycouk
+        ports:
+        - containerPort: 80
+          name: wordpress
+      # https://kubernetes.io/docs/concepts/configuration/manage-compute-resources-container/
+        #resources:
+        #  requests:
+        #    memory: 128Mi
+        #    cpu: 300m
+        #  limits:
+        #    memory: 512Mi
+        #    cpu: 800m
+        #livenessProbe:
+        #  httpGet:
+        #    path: /wp-login.php
+        #    port: 80
+        #    #port: 443
+        #    #scheme: HTTPS
+        #  initialDelaySeconds: 600
+        #  timeoutSeconds: 60 
+        #  periodSeconds: 120
+        #  successThreshold: 1
+        #  failureThreshold: 6
+        #readinessProbe:
+        #  httpGet:
+        #    path: /wp-login.php
+        #    port: 80
+        #    #port: 443
+        #      #scheme: HTTPS 
+        #  initialDelaySeconds: 600
+        #  timeoutSeconds: 60 
+        #  periodSeconds: 120
+        #  successThreshold: 1
+        #  failureThreshold: 6
+        volumeMounts:
+        - name: ellenrotheraycouk-wordpress-persistent-storage
+          mountPath: /var/www/html
+      volumes:
+      - name: ellenrotheraycouk-wordpress-persistent-storage
+        persistentVolumeClaim:
+          claimName: ellenrotheraycouk-uploads-claim
+      imagePullSecrets:
+        - name: quorumlegalsecretdockerhub
+

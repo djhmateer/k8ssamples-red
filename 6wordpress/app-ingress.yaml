@@ -1,0 +1,16 @@
+# app-ingress.yaml
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: hoverfly-ingress
+  annotations:
+    nginx.ingress.kubernetes.io/rewrite-target: /
+spec:
+  rules:
+  - host: www.programgood.net
+    http:
+      paths:
+      - backend:
+          serviceName: hoverfly-svc
+          servicePort: 80
+        path: /

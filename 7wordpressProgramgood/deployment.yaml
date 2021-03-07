@@ -1,0 +1,74 @@
+apiVersion: apps/v1 
+kind: Deployment
+metadata:
+  # the Name which appears first in the UI
+  name: programgood
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      # must match template label
+      app: programgood-dep
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        # this label must be the same as the matchLabel in programgood-svc
+        app: programgood-dep
+    spec:
+      containers:
+      - image: wordpress:4.9.6-apache
+        name: wordpress
+        env:
+        - name: WORDPRESS_DB_HOST
+          value: davemysql.mysql.database.azure.com 
+        - name: WORDPRESS_DB_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: mysql-pass
+              key: password
+        - name: WORDPRESS_DB_USER
+          value: dave@davemysql
+        - name: WORDPRESS_DB_NAME
+          value: programgood
+        ports:
+        - containerPort: 80
+          name: wordpress
+        # https://kubernetes.io/docs/concepts/configuration/manage-compute-resources-container/
+        #        resources:
+        #          requests:
+        #            memory: 128Mi
+        #            cpu: 300m
+        #          limits:
+        #            memory: 512Mi
+        #            cpu: 800m
+        #               livenessProbe:
+        #                  httpGet:
+        #                    path: /wp-login.php
+        #                    port: 80
+        #                    #port: https
+        #                    #scheme: HTTPS
+        #                  initialDelaySeconds: 120
+        #                  timeoutSeconds: 60 
+        #                  periodSeconds: 120
+        #                  successThreshold: 1
+        #                  failureThreshold: 6
+        #                readinessProbe:
+        #                  httpGet:
+        #                    path: /wp-login.php
+        #                    port: 80
+        #                      #port: https
+        #                      #scheme: HTTPS 
+        #                  initialDelaySeconds: 30
+        #                  timeoutSeconds: 60 
+        #                  periodSeconds: 120
+        #                  successThreshold: 1
+        #                  failureThreshold: 6
+        volumeMounts:
+        - name: programgood-persistent-storage
+          mountPath: /var/www/html
+      volumes:
+      - name: programgood-persistent-storage
+        persistentVolumeClaim:
+          claimName: programgood-upload-claim

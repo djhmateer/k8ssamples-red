@@ -1,0 +1,29 @@
+# app-ingress.yaml
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: programgood-ingress
+  annotations:
+    nginx.ingress.kubernetes.io/rewrite-target: /
+spec:
+  tls:
+  - hosts:
+    - www.programgood.net
+    secretName: programgood-ssl
+  rules:
+  # the main site
+  - host: www.programgood.net
+    http:
+      paths:
+      - backend:
+          serviceName: programgood-svc
+          servicePort: 80
+        path: /
+  # want this to redirect to main site
+  - host: programgood.net
+    http:
+      paths:
+        - backend:
+            serviceName: redirect-svc
+            servicePort: 80
+          path: /
